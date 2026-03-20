@@ -67,8 +67,15 @@ class CountDownTimerService : Service() {
             isTimerRunning = false
             LogFileManager.writeLog("startCountDown: 第${taskIndex}个任务重复执行，取消之前的任务")
         }
-        LogFileManager.writeLog("startCountDown: 倒计时任务开始，执行第${taskIndex}个任务")
-        countDownTimer = object : CountDownTimer(seconds * 1000L, 1000L) {
+        // 如果随机偏移导致任务时间已过（diff <= 0），立即执行（延迟1秒）
+        val actualSeconds = if (seconds <= 0) {
+            LogFileManager.writeLog("startCountDown: 第${taskIndex}个任务时间已过（diff=${seconds}s），立即执行")
+            1
+        } else {
+            seconds
+        }
+        LogFileManager.writeLog("startCountDown: 倒计时任务开始，执行第${taskIndex}个任务，倒计时${actualSeconds}秒")
+        countDownTimer = object : CountDownTimer(actualSeconds * 1000L, 1000L) {
             override fun onTick(millisUntilFinished: Long) {
                 val seconds = (millisUntilFinished / 1000).toInt()
                 val notification = notificationBuilder.apply {

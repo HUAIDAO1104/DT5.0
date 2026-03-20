@@ -1,15 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.DailyTask" parent="Theme.Material3.Light.NoActionBar">
-        <!-- 修改控件系统默认颜色 -->
+    <style name="Base.Theme.DailyTask" parent="Theme.Material3.Dark.NoActionBar">
         <item name="colorPrimary">@color/theme_color</item>
-        <item name="colorSecondary">@color/theme_color</item>
-        <!-- Customize your theme here. -->
-
-        <!-- 从 Android 15 开始，系统默认开启了 Edge-to-Edge 模式，这可能会导致 ImmersionBar 的一些功能失效 -->
+        <item name="colorSecondary">@color/accent_cyan</item>
+        <item name="colorSurface">@color/bg_secondary</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSecondaryContainer">@color/bg_card_elevated</item>
+        <item name="colorOnSecondaryContainer">@color/text_primary</item>
+        <item name="colorPrimaryContainer">@color/bg_card</item>
+        <item name="colorOutline">@color/border_color</item>
+        <item name="android:colorBackground">@color/bg_primary</item>
+        <item name="android:windowBackground">@color/bg_primary</item>
+        <item name="android:statusBarColor">@color/bg_primary</item>
+        <item name="android:navigationBarColor">@color/bg_primary</item>
+        <item name="android:windowLightStatusBar">false</item>
         <item name="android:windowOptOutEdgeToEdgeEnforcement" tools:targetApi="35">true</item>
+
+        <!-- Switch 颜色 -->
+        <item name="colorSwitchThumbNormal">@color/text_tertiary</item>
+
+        <!-- 对话框样式 -->
+        <item name="alertDialogTheme">@style/DarkAlertDialog</item>
+        <item name="bottomSheetDialogTheme">@style/DarkBottomSheet</item>
     </style>
 
     <style name="Theme.DailyTask" parent="Base.Theme.DailyTask" />
+
+    <!-- 暗色对话框 -->
+    <style name="DarkAlertDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="colorSurface">@color/bg_card</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+    </style>
+
+    <!-- 暗色 BottomSheet -->
+    <style name="DarkBottomSheet" parent="ThemeOverlay.Material3.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/DarkBottomSheetStyle</item>
+    </style>
+
+    <style name="DarkBottomSheetStyle" parent="Widget.Material3.BottomSheet">
+        <item name="backgroundTint">@color/bg_card</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.Material3.LargeComponent</item>
+    </style>
 </resources>

@@ -4,17 +4,17 @@
     android:id="@+id/rootView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/back_ground_color"
+    android:background="@color/bg_primary"
     android:orientation="vertical">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/theme_color"
+        android:background="@color/bg_primary"
         app:navigationIcon="@drawable/ic_title_left"
         app:title="设置"
-        app:titleTextColor="@color/white" />
+        app:titleTextColor="@color/text_primary" />
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/contentView"
@@ -27,16 +27,16 @@
             android:orientation="vertical"
             android:padding="@dimen/dp_16">
 
+            <!-- 目标应用区块 -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/bg_solid_layout_white_16"
+                android:background="@drawable/bg_card_bordered"
                 android:orientation="vertical">
 
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/itemLayoutHeight"
-                    android:background="@drawable/bg_solid_layout_white_16"
                     android:paddingHorizontal="@dimen/dp_16">
 
                     <TextView
@@ -44,8 +44,7 @@
                         android:layout_height="wrap_content"
                         android:layout_centerVertical="true"
                         android:text="目标应用"
-                        android:textColor="@color/text_default_color"
-                        android:textSize="@dimen/sp_16" />
+                        style="@style/SettingTitle" />
 
                     <com.google.android.material.imageview.ShapeableImageView
                         android:id="@+id/iconView"
@@ -53,7 +52,7 @@
                         android:layout_height="28dp"
                         android:layout_alignParentEnd="true"
                         android:layout_centerVertical="true"
-                        android:background="#F1F1F1"
+                        android:background="@color/bg_card_elevated"
                         app:shapeAppearance="@style/RoundedStyle" />
                 </RelativeLayout>
 
@@ -61,7 +60,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="1px"
                     android:layout_marginHorizontal="@dimen/dp_16"
-                    android:background="#CCC" />
+                    android:background="@color/divider_color" />
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/recyclerView"
@@ -73,18 +72,18 @@
                     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
             </LinearLayout>
 
+            <!-- 配置区块 -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginVertical="@dimen/dp_16"
-                android:background="@drawable/bg_solid_layout_white_16"
+                android:layout_marginTop="@dimen/dp_16"
+                android:background="@drawable/bg_card_bordered"
                 android:orientation="vertical">
 
                 <RelativeLayout
                     android:id="@+id/emailConfigLayout"
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/itemLayoutHeight"
-                    android:background="@drawable/bg_solid_layout_white_16"
                     android:paddingHorizontal="@dimen/dp_16">
 
                     <TextView
@@ -92,8 +91,7 @@
                         android:layout_height="wrap_content"
                         android:layout_centerVertical="true"
                         android:text="邮箱配置"
-                        android:textColor="@color/text_default_color"
-                        android:textSize="@dimen/sp_16" />
+                        style="@style/SettingTitle" />
 
                     <com.google.android.material.switchmaterial.SwitchMaterial
                         android:id="@+id/emailSwitch"
@@ -107,23 +105,20 @@
                     android:layout_width="match_parent"
                     android:layout_height="1px"
                     android:layout_marginHorizontal="@dimen/dp_16"
-                    android:background="#CCC" />
+                    android:background="@color/divider_color" />
 
                 <RelativeLayout
                     android:id="@+id/taskConfigLayout"
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/itemLayoutHeight"
-                    android:background="@drawable/bg_solid_layout_white_16"
                     android:paddingHorizontal="@dimen/dp_16">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_centerVertical="true"
-                        android:gravity="center_vertical"
                         android:text="任务配置"
-                        android:textColor="@color/text_default_color"
-                        android:textSize="@dimen/sp_16" />
+                        style="@style/SettingTitle" />
 
                     <ImageView
                         android:layout_width="wrap_content"
@@ -134,16 +129,18 @@
                 </RelativeLayout>
             </LinearLayout>
 
+            <!-- 功能开关区块 -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/bg_solid_layout_white_16"
+                android:layout_marginTop="@dimen/dp_16"
+                android:background="@drawable/bg_card_bordered"
                 android:orientation="vertical">
 
+                <!-- 通知监听 -->
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/itemLayoutHeight"
-                    android:background="@drawable/bg_solid_layout_white_16"
                     android:paddingHorizontal="@dimen/dp_16">
 
                     <LinearLayout
@@ -156,17 +153,15 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="通知监听"
-                            android:textColor="@color/text_default_color"
-                            android:textSize="@dimen/sp_16" />
+                            style="@style/SettingTitle" />
 
                         <TextView
                             android:id="@+id/tipsView"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/dp_4"
+                            style="@style/SettingDescription"
                             android:text="通知监听服务未开启，无法监听打卡通知"
-                            android:textColor="@color/red"
-                            android:textSize="@dimen/sp_10" />
+                            android:textColor="@color/red" />
                     </LinearLayout>
 
                     <com.google.android.material.switchmaterial.SwitchMaterial
@@ -181,12 +176,12 @@
                     android:layout_width="match_parent"
                     android:layout_height="1px"
                     android:layout_marginHorizontal="@dimen/dp_16"
-                    android:background="#CCC" />
+                    android:background="@color/divider_color" />
 
+                <!-- 手势辅助 -->
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/itemLayoutHeight"
-                    android:background="@drawable/bg_solid_layout_white_16"
                     android:paddingHorizontal="@dimen/dp_16">
 
                     <LinearLayout
@@ -199,17 +194,13 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="手势辅助"
-                            android:textColor="@color/text_default_color"
-                            android:textSize="@dimen/sp_16" />
+                            style="@style/SettingTitle" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_gravity="end"
-                            android:layout_marginTop="@dimen/dp_4"
-                            android:singleLine="true"
-                            android:text="开启后，支持单手指上下滑动屏幕开启/关闭伪灭屏"
-                            android:textSize="@dimen/sp_10" />
+                            style="@style/SettingDescription"
+                            android:text="开启后，支持单手指上下滑动屏幕开启/关闭伪灭屏" />
                     </LinearLayout>
 
                     <com.google.android.material.switchmaterial.SwitchMaterial
@@ -224,12 +215,12 @@
                     android:layout_width="match_parent"
                     android:layout_height="1px"
                     android:layout_marginHorizontal="@dimen/dp_16"
-                    android:background="#CCC" />
+                    android:background="@color/divider_color" />
 
+                <!-- 退回桌面 -->
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/itemLayoutHeight"
-                    android:background="@drawable/bg_solid_layout_white_16"
                     android:paddingHorizontal="@dimen/dp_16">
 
                     <LinearLayout
@@ -242,17 +233,13 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="退回桌面"
-                            android:textColor="@color/text_default_color"
-                            android:textSize="@dimen/sp_16" />
+                            style="@style/SettingTitle" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_gravity="end"
-                            android:layout_marginTop="@dimen/dp_4"
-                            android:singleLine="true"
-                            android:text="开启后，打卡倒计时结束，会先退回桌面再启动本软件"
-                            android:textSize="@dimen/sp_10" />
+                            style="@style/SettingDescription"
+                            android:text="开启后，打卡倒计时结束，会先退回桌面再启动本软件" />
                     </LinearLayout>
 
                     <com.google.android.material.switchmaterial.SwitchMaterial
@@ -264,18 +251,18 @@
                 </RelativeLayout>
             </LinearLayout>
 
+            <!-- 工具区块 -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginVertical="@dimen/dp_16"
-                android:background="@drawable/bg_solid_layout_white_16"
+                android:layout_marginTop="@dimen/dp_16"
+                android:background="@drawable/bg_card_bordered"
                 android:orientation="vertical">
 
                 <RelativeLayout
                     android:id="@+id/openTestLayout"
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/itemLayoutHeight"
-                    android:background="@drawable/bg_solid_layout_white_16"
                     android:paddingHorizontal="@dimen/dp_16">
 
                     <TextView
@@ -283,8 +270,7 @@
                         android:layout_height="wrap_content"
                         android:layout_centerVertical="true"
                         android:text="唤起测试"
-                        android:textColor="@color/text_default_color"
-                        android:textSize="@dimen/sp_16" />
+                        style="@style/SettingTitle" />
 
                     <ImageView
                         android:layout_width="wrap_content"
@@ -298,13 +284,12 @@
                     android:layout_width="match_parent"
                     android:layout_height="1px"
                     android:layout_marginHorizontal="@dimen/dp_16"
-                    android:background="#CCC" />
+                    android:background="@color/divider_color" />
 
                 <RelativeLayout
                     android:id="@+id/notificationLayout"
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/itemLayoutHeight"
-                    android:background="@color/white"
                     android:paddingHorizontal="@dimen/dp_16">
 
                     <TextView
@@ -312,8 +297,7 @@
                         android:layout_height="wrap_content"
                         android:layout_centerVertical="true"
                         android:text="通知记录"
-                        android:textColor="@color/text_default_color"
-                        android:textSize="@dimen/sp_16" />
+                        style="@style/SettingTitle" />
 
                     <ImageView
                         android:layout_width="wrap_content"
@@ -327,13 +311,12 @@
                     android:layout_width="match_parent"
                     android:layout_height="1px"
                     android:layout_marginHorizontal="@dimen/dp_16"
-                    android:background="#CCC" />
+                    android:background="@color/divider_color" />
 
                 <RelativeLayout
                     android:id="@+id/introduceLayout"
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/itemLayoutHeight"
-                    android:background="@color/white"
                     android:paddingHorizontal="@dimen/dp_16">
 
                     <TextView
@@ -341,8 +324,7 @@
                         android:layout_height="wrap_content"
                         android:layout_centerVertical="true"
                         android:text="常见问题"
-                        android:textColor="@color/text_default_color"
-                        android:textSize="@dimen/sp_16" />
+                        style="@style/SettingTitle" />
 
                     <ImageView
                         android:layout_width="wrap_content"
@@ -356,22 +338,19 @@
                     android:layout_width="match_parent"
                     android:layout_height="1px"
                     android:layout_marginHorizontal="@dimen/dp_16"
-                    android:background="#CCC" />
+                    android:background="@color/divider_color" />
 
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/itemLayoutHeight"
-                    android:background="@drawable/bg_solid_layout_white_16"
                     android:paddingHorizontal="@dimen/dp_16">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_centerVertical="true"
-                        android:gravity="center_vertical"
                         android:text="当前版本"
-                        android:textColor="@color/text_default_color"
-                        android:textSize="@dimen/sp_16" />
+                        style="@style/SettingTitle" />
 
                     <TextView
                         android:id="@+id/appVersion"
@@ -379,11 +358,14 @@
                         android:layout_height="wrap_content"
                         android:layout_alignParentEnd="true"
                         android:layout_centerVertical="true"
-                        android:gravity="center_vertical"
-                        android:textColor="@color/text_default_color"
+                        android:textColor="@color/text_secondary"
                         android:textSize="@dimen/sp_16" />
                 </RelativeLayout>
             </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dp_16" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 </LinearLayout>

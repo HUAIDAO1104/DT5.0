@@ -49,11 +49,11 @@ import com.pengxh.daily.app.sqlite.DatabaseWrapper
 import com.pengxh.daily.app.sqlite.bean.DailyTaskBean
 import com.pengxh.daily.app.utils.BroadcastManager
 import com.pengxh.daily.app.utils.Constant
-import com.pengxh.daily.app.utils.DailyTask
 import com.pengxh.daily.app.utils.EmailManager
+import com.pengxh.daily.app.utils.HolidayHelper
 import com.pengxh.daily.app.utils.LogFileManager
 import com.pengxh.daily.app.utils.MessageType
-import com.pengxh.daily.app.utils.WatermarkDrawable
+import com.pengxh.daily.app.utils.RetryHelper
 import com.pengxh.kt.lite.adapter.NormalRecyclerAdapter
 import com.pengxh.kt.lite.base.KotlinBaseActivity
 import com.pengxh.kt.lite.divider.RecyclerViewItemOffsets
@@ -66,7 +66,6 @@ import com.pengxh.kt.lite.extensions.show
 import com.pengxh.kt.lite.utils.SaveKeyValues
 import com.pengxh.kt.lite.widget.dialog.AlertControlDialog
 import com.pengxh.kt.lite.widget.dialog.AlertInputDialog
-import com.pengxh.kt.lite.widget.dialog.AlertMessageDialog
 import com.pengxh.kt.lite.widget.dialog.BottomActionSheet
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -225,17 +224,7 @@ class MainActivity : KotlinBaseActivity<ActivityMainBinding>() {
                 }
 
                 R.id.menu_settings -> {
-                    AlertMessageDialog.Builder()
-                        .setContext(this)
-                        .setTitle("温馨提醒")
-                        .setMessage("本软件完全免费！近期发现有人在咸鱼私自倒卖本软件，请勿购买！如有购买，请联系卖家退款！")
-                        .setPositiveButton("知道了")
-                        .setOnDialogButtonClickListener(object :
-                            AlertMessageDialog.OnDialogButtonClickListener {
-                            override fun onConfirmClick() {
-                                navigatePageTo<SettingsActivity>()
-                            }
-                        }).build().show()
+                    navigatePageTo<SettingsActivity>()
                 }
             }
             true
@@ -265,9 +254,6 @@ class MainActivity : KotlinBaseActivity<ActivityMainBinding>() {
         Intent(this, CountDownTimerService::class.java).apply {
             bindService(this, connection, BIND_AUTO_CREATE)
         }
-
-        val watermark = DailyTask.getWatermarkText()
-        binding.contentView.background = WatermarkDrawable(this, watermark)
 
         gestureDetector = GestureDetector(this, object : GestureDetector.SimpleOnGestureListener() {
             override fun onFling(
@@ -329,20 +315,6 @@ class MainActivity : KotlinBaseActivity<ActivityMainBinding>() {
                 marginOffset shr 1
             )
         )
-
-        if (SaveKeyValues.getValue("isFirst", true) as Boolean) {
-            AlertMessageDialog.Builder()
-                .setContext(this)
-                .setTitle("温馨提醒")
-                .setMessage("本软件仅供内部使用，严禁商用或者用作其他非法用途")
-                .setPositiveButton("知道了")
-                .setOnDialogButtonClickListener(object :
-                    AlertMessageDialog.OnDialogButtonClickListener {
-                    override fun onConfirmClick() {
-                        SaveKeyValues.putValue("isFirst", false)
-                    }
-                }).build().show()
-        }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -350,7 +322,17 @@ class MainActivity : KotlinBaseActivity<ActivityMainBinding>() {
         val time = SaveKeyValues.getValue(
             Constant.STAY_DD_TIMEOUT_KEY, Constant.DEFAULT_OVER_TIME
         ) as Int
-        timeoutTimer = object : CountDownTimer(time * 1000L, 1000) {
+        startTimeoutTimer(time)
+    }
+
+    /**
+     * 启动超时计时器（支持重试后重新启动）
+     */
+    private fun startTimeoutTimer(timeoutSeconds: Int) {
+        timeoutTimer?.cancel()
+        timeoutTimer = null
+
+        timeoutTimer = object : CountDownTimer(timeoutSeconds * 1000L, 1000) {
             override fun onTick(millisUntilFinished: Long) {
                 val tick = millisUntilFinished / 1000
                 // 更新悬浮窗倒计时
@@ -365,8 +347,70 @@ class MainActivity : KotlinBaseActivity<ActivityMainBinding>() {
                 //如果倒计时结束，那么表明没有收到打卡成功的通知
                 backToMainActivity()
 
-                LogFileManager.writeLog("未收到打卡成功通知，发送异常日志邮件")
-                emailManager.sendEmail(null, "", false)
+                if (RetryHelper.canRetry()) {
+                    val retryNum = RetryHelper.getCurrentRetryCount() + 1
+                    val maxRetry = RetryHelper.getMaxRetryCount()
+                    LogFileManager.writeLog("未收到打卡成功通知，准备第${retryNum}/${maxRetry}次重试")
+                    emailManager.sendEmail(
+                        "打卡重试通知",
+                        "未收到打卡成功通知，正在进行第${retryNum}/${maxRetry}次重试：结束钉钉→预热网络→重新打卡",
+                        false
+                    )
+
+                    RetryHelper.executeRetry(
+                        context = context,
+                        onRetryStarted = { num ->
+                            binding.tipsView.text = "重试中 ($num/${maxRetry})..."
+                            binding.tipsView.setTextColor(
+                                R.color.accent_orange.convertColor(context)
+                            )
+                        },
+                        onRetryComplete = {
+                            // 重试完成后重新启动超时计时器等待结果
+                            LogFileManager.writeLog("重试第${retryNum}次：已重新打开目标应用，等待打卡结果")
+                            // 重新启动超时计时器 - 关键修复！
+                            mainHandler.post {
+                                startTimeoutTimer(timeoutSeconds)
+                            }
+                        },
+                        onRetryExhausted = {
+                            LogFileManager.writeLog("重试次数已耗尽（${maxRetry}次），发送失败邮件，继续执行下一个任务")
+                            emailManager.sendEmail(
+                                "打卡失败通知",
+                                "已重试${maxRetry}次仍未收到打卡成功通知，请手动处理",
+                                false
+                            )
+                            binding.tipsView.text = "打卡失败，重试已耗尽，等待下一个任务"
+                            binding.tipsView.setTextColor(
+                                R.color.red.convertColor(context)
+                            )
+                            // 重置重试计数并继续执行下一个任务 - 关键修复！
+                            RetryHelper.resetRetryCount()
+                            mainHandler.post {
+                                if (isTaskStarted) {
+                                    // 恢复伪灭屏
+                                    if (!binding.maskView.isVisible) {
+                                        showMaskView()
+                                    }
+                                    mainHandler.post(dailyTaskRunnable)
+                                }
+                            }
+                        }
+                    )
+                } else {
+                    LogFileManager.writeLog("未收到打卡成功通知，发送异常日志邮件，继续执行下一个任务")
+                    emailManager.sendEmail(null, "", false)
+                    // 即使没有开启重试，也继续执行下一个任务 - 关键修复！
+                    mainHandler.postDelayed({
+                        if (isTaskStarted) {
+                            // 恢复伪灭屏
+                            if (!binding.maskView.isVisible) {
+                                showMaskView()
+                            }
+                            mainHandler.post(dailyTaskRunnable)
+                        }
+                    }, 3000)
+                }
             }
         }
         timeoutTimer?.start()
@@ -508,6 +552,21 @@ class MainActivity : KotlinBaseActivity<ActivityMainBinding>() {
      * 启动任务
      * */
     private fun startExecuteTask() {
+        // 节假日跳过判断
+        val skipHoliday = SaveKeyValues.getValue(Constant.SKIP_HOLIDAY_KEY, false) as Boolean
+        if (skipHoliday && HolidayHelper.isTodayHoliday(this)) {
+            val desc = HolidayHelper.getTodayHolidayDesc(this) ?: "休息日"
+            val message = "今天是${desc}，自动跳过打卡任务"
+            LogFileManager.writeLog(message)
+            binding.tipsView.text = message
+            binding.tipsView.setTextColor(R.color.ios_green.convertColor(context))
+            emailManager.sendEmail("节假日跳过通知", message, false)
+            return
+        }
+
+        // 重置重试计数
+        RetryHelper.resetRetryCount()
+
         LogFileManager.writeLog("开始执行每日任务")
         // 更新状态标志
         isTaskStarted = true
@@ -579,6 +638,9 @@ class MainActivity : KotlinBaseActivity<ActivityMainBinding>() {
     private fun stopExecuteTask() {
         LogFileManager.writeLog("停止执行每日任务")
         isTaskStarted = false
+
+        // 重置重试计数
+        RetryHelper.resetRetryCount()
 
         // 取消任务调度
         mainHandler.removeCallbacks(dailyTaskRunnable)
@@ -821,6 +883,18 @@ class MainActivity : KotlinBaseActivity<ActivityMainBinding>() {
                             Constant.RANDOM_MINUTE_RANGE_KEY,
                             config.timeRange
                         )
+                        SaveKeyValues.putValue(
+                            Constant.SKIP_HOLIDAY_KEY,
+                            config.isSkipHoliday
+                        )
+                        SaveKeyValues.putValue(
+                            Constant.RETRY_ON_FAIL_KEY,
+                            config.isRetryOnFail
+                        )
+                        SaveKeyValues.putValue(
+                            Constant.RETRY_MAX_COUNT_KEY,
+                            config.retryCount
+                        )
 
                         "任务导入成功".show(context)
                     } catch (e: JsonSyntaxException) {
@@ -835,9 +909,16 @@ class MainActivity : KotlinBaseActivity<ActivityMainBinding>() {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
+        setIntent(intent)
         Log.d(kTag, "onNewIntent: ${packageName}回到前台")
-        if (!binding.maskView.isVisible) {
-            showMaskView()
+
+        // 打卡完成后恢复伪灭屏界面
+        if (isTaskStarted && !binding.maskView.isVisible) {
+            mainHandler.postDelayed({
+                if (!binding.maskView.isVisible) {
+                    showMaskView()
+                }
+            }, 500)
         }
     }
 

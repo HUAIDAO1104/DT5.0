@@ -1,7 +1,50 @@
 <resources>
-    <!--ShapeableImageView 圆角-->
+    <!-- ShapeableImageView 圆角 -->
     <style name="RoundedStyle">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">14dp</item>
+    </style>
+
+    <!-- 暗色 Toolbar 样式 -->
+    <style name="DarkToolbar" parent="Widget.Material3.Toolbar">
+        <item name="titleTextColor">@color/text_primary</item>
+        <item name="subtitleTextColor">@color/text_secondary</item>
+        <item name="navigationIconTint">@color/text_primary</item>
+    </style>
+
+    <!-- 卡片内的标签文字 -->
+    <style name="TextLabel">
+        <item name="android:textColor">@color/text_secondary</item>
+        <item name="android:textSize">@dimen/sp_12</item>
+        <item name="android:letterSpacing">0.06</item>
+        <item name="android:textAllCaps">true</item>
+    </style>
+
+    <!-- 卡片内的值文字 -->
+    <style name="TextValue">
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textSize">@dimen/sp_16</item>
+    </style>
+
+    <!-- 大时间数字 -->
+    <style name="TextTimeLarge">
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textSize">32sp</item>
+        <item name="android:fontFamily">sans-serif-thin</item>
+        <item name="android:letterSpacing">0.05</item>
+    </style>
+
+    <!-- 设置项标题 -->
+    <style name="SettingTitle">
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textSize">@dimen/sp_16</item>
+    </style>
+
+    <!-- 设置项描述 -->
+    <style name="SettingDescription">
+        <item name="android:textColor">@color/text_tertiary</item>
+        <item name="android:textSize">@dimen/sp_10</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:layout_marginTop">@dimen/dp_4</item>
     </style>
 </resources>

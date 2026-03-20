@@ -1,6 +1,5 @@
 package com.pengxh.daily.app.ui
 
-import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.os.CountDownTimer
@@ -13,6 +12,7 @@ import com.pengxh.kt.lite.adapter.NormalRecyclerAdapter
 import com.pengxh.kt.lite.adapter.ViewHolder
 import com.pengxh.kt.lite.base.KotlinBaseActivity
 import com.pengxh.kt.lite.divider.RecyclerViewItemDivider
+import com.pengxh.kt.lite.extensions.convertColor
 import com.pengxh.kt.lite.extensions.getStatusBarHeight
 import com.pengxh.kt.lite.widget.dialog.AlertControlDialog
 
@@ -77,7 +77,7 @@ class NoticeRecordActivity : KotlinBaseActivity<ActivityNoticeBinding>() {
                         .setText(R.id.postTimeView, item.postTime)
                 }
             }
-            binding.recyclerView.addItemDecoration(RecyclerViewItemDivider(0f, 0f, Color.LTGRAY))
+            binding.recyclerView.addItemDecoration(RecyclerViewItemDivider(0f, 0f, R.color.divider_color.convertColor(this)))
             binding.recyclerView.adapter = noticeAdapter
         }
     }

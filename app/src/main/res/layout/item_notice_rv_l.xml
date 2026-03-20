@@ -7,12 +7,12 @@
     android:background="?attr/selectableItemBackground"
     android:padding="@dimen/dp_16">
 
-    <!-- 标题 -->
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/titleView"
         style="@style/TextAppearance.Material3.TitleMedium"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:textColor="@color/text_primary"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="I'm a Coder (43条新消息)" />
@@ -22,10 +22,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/dp_8"
-        app:cardBackgroundColor="?attr/colorSecondaryContainer"
+        app:cardBackgroundColor="@color/bg_card_elevated"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/titleView"
-        app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.SmallComponent">
+        app:strokeWidth="0dp"
+        app:cardCornerRadius="@dimen/dp_8">
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/packageNameView"
@@ -34,7 +35,7 @@
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="@dimen/dp_8"
             android:layout_marginVertical="@dimen/dp_4"
-            android:background="?attr/colorPrimaryContainer"
+            android:textColor="@color/text_secondary"
             tools:text="包名：com.tencent.mobileqq" />
     </com.google.android.material.card.MaterialCardView>
 
@@ -44,9 +45,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/dp_8"
+        android:textColor="@color/text_primary"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/packageNameCardView"
-        tools:text="onNotificationPostedonNotificationPosted" />
+        tools:text="onNotificationPosted" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/postTimeView"
@@ -54,6 +56,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/dp_4"
+        android:textColor="@color/text_tertiary"
         android:textSize="@dimen/sp_12"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/messageView"

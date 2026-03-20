@@ -15,6 +15,7 @@ import com.pengxh.daily.app.R
 import com.pengxh.daily.app.utils.BroadcastManager
 import com.pengxh.daily.app.utils.Constant
 import com.pengxh.daily.app.utils.EmailManager
+import com.pengxh.daily.app.utils.HolidayHelper
 import com.pengxh.daily.app.utils.LogFileManager
 import com.pengxh.daily.app.utils.MessageType
 import com.pengxh.kt.lite.utils.SaveKeyValues
@@ -70,7 +71,12 @@ class ForegroundRunningService : Service() {
     private fun resetTask() {
         if (!isTaskReset) {
             var message: String
-            if (SaveKeyValues.getValue(Constant.TASK_AUTO_START_KEY, true) as Boolean) {
+            // 节假日跳过判断
+            val skipHoliday = SaveKeyValues.getValue(Constant.SKIP_HOLIDAY_KEY, false) as Boolean
+            if (skipHoliday && HolidayHelper.isTodayHoliday(this)) {
+                val desc = HolidayHelper.getTodayHolidayDesc(this) ?: "休息日"
+                message = "今天是${desc}，自动跳过打卡任务。"
+            } else if (SaveKeyValues.getValue(Constant.TASK_AUTO_START_KEY, true) as Boolean) {
                 BroadcastManager.getDefault().sendBroadcast(
                     this, MessageType.RESET_DAILY_TASK.action
                 )

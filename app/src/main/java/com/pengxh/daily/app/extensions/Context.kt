@@ -11,9 +11,7 @@ import android.util.Log
 import androidx.core.app.NotificationManagerCompat
 import com.pengxh.daily.app.event.FloatViewTimerEvent
 import com.pengxh.daily.app.ui.MainActivity
-import com.pengxh.daily.app.utils.BroadcastManager
 import com.pengxh.daily.app.utils.Constant
-import com.pengxh.daily.app.utils.MessageType
 import com.pengxh.kt.lite.utils.SaveKeyValues
 import com.pengxh.kt.lite.widget.dialog.AlertMessageDialog
 import org.greenrobot.eventbus.EventBus
@@ -85,7 +83,6 @@ fun Context.openApplication(needCountDown: Boolean) {
 }
 
 fun Context.backToMainActivity() {
-    BroadcastManager.getDefault().sendBroadcast(this, MessageType.CANCEL_COUNT_DOWN_TIMER.action)
     val backToHome = SaveKeyValues.getValue(Constant.BACK_TO_HOME_KEY, false) as Boolean
     if (backToHome) {
         //模拟点击Home键
@@ -106,7 +103,9 @@ fun Context.backToMainActivity() {
 
 private fun Context.launchMainActivity() {
     val intent = Intent(this, MainActivity::class.java).apply {
-        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        flags = Intent.FLAG_ACTIVITY_NEW_TASK or
+                Intent.FLAG_ACTIVITY_CLEAR_TOP or
+                Intent.FLAG_ACTIVITY_SINGLE_TOP
     }
     startActivity(intent)
 }

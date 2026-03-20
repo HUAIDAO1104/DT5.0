@@ -22,16 +22,22 @@ fun DailyTaskBean.diffCurrent(): Pair<String, Int> {
     val array = this.time.split(":")
     var totalSeconds = array[0].toInt() * 3600 + array[1].toInt() * 60 + array[2].toInt()
 
-    // 随机时间
+    // 随机时间：使用双向偏移（±），让随机时间均匀分布在基准时间的前后
+    // 例如设置7分钟 → 偏移范围 [-420, +420) 秒，即基准时间 ±7 分钟
     if (needRandom) {
         val minuteRange = SaveKeyValues.getValue(Constant.RANDOM_MINUTE_RANGE_KEY, 5) as Int
 
-        val seedMinute = (0 until minuteRange).random() // [0,minuteRange)
-        val seedSeconds = (0 until 60).random() // [0,60)
-        totalSeconds += seedMinute * 60 + seedSeconds
+        // 双向随机：范围 [-minuteRange*60, +minuteRange*60)
+        // 例如 minuteRange=7 → [-420, +420) 秒
+        val maxOffsetSeconds = minuteRange * 60
+        if (maxOffsetSeconds > 0) {
+            // nextInt(-420, 420) 生成 [-420, 419] 的均匀分布
+            val randomOffset = kotlin.random.Random.nextInt(-maxOffsetSeconds, maxOffsetSeconds)
+            totalSeconds += randomOffset
+        }
 
-        // 确保不超过当天23:59:59（86399秒）
-        totalSeconds = minOf(totalSeconds, 86399)
+        // 确保时间在有效范围内 [00:00:00, 23:59:59]
+        totalSeconds = totalSeconds.coerceIn(0, 86399)
     }
 
     // 转换回 时:分:秒 格式
