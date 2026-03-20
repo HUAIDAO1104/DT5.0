@@ -17,6 +17,17 @@ object Constant {
     const val RANDOM_MINUTE_RANGE_KEY = "RANDOM_MINUTE_RANGE_KEY"
     const val TASK_AUTO_START_KEY = "TASK_AUTO_START_KEY"
     const val TARGET_APP_KEY = "TARGET_APP_KEY"
+    const val SKIP_HOLIDAY_KEY = "SKIP_HOLIDAY_KEY"
+    const val RETRY_ON_FAIL_KEY = "RETRY_ON_FAIL_KEY"
+    const val RETRY_MAX_COUNT_KEY = "RETRY_MAX_COUNT_KEY"
+    const val DEFAULT_RETRY_COUNT = 2
+
+    /**
+     * 远程指令前缀，所有远程控制指令必须以此前缀开头
+     * 例如发送 "#dt启动" "#dt停止" 才会触发，防止日常聊天消息误触发
+     */
+    const val REMOTE_COMMAND_PREFIX = "#dt"
+    const val REMOTE_COMMAND_PREFIX_KEY = "REMOTE_COMMAND_PREFIX_KEY"
 
     const val DING_DING = "com.alibaba.android.rimet" // 钉钉
     const val FEI_SHU = "com.ss.android.lark" // 飞书

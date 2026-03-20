@@ -1,7 +1,6 @@
 package com.pengxh.daily.app.adapter
 
 import android.content.Context
-import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -66,7 +65,7 @@ class DailyTaskAdapter(
             holder.itemView.isSelected = false
             holder.setVisibility(R.id.actualTimeCardView, View.GONE)
                 .setText(R.id.actualTimeView, "--:--:--")
-                .setTextColor(R.id.taskTimeView, Color.BLACK)
+                .setTextColor(R.id.taskTimeView, R.color.text_primary.convertColor(context))
             arrowView.animate().rotation(0f).setDuration(500).start()
         }
 

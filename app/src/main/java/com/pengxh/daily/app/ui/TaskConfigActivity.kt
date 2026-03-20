@@ -59,12 +59,28 @@ class TaskConfigActivity : KotlinBaseActivity<ActivityTaskConfigBinding>() {
         binding.autoTaskSwitch.isChecked = SaveKeyValues.getValue(
             Constant.TASK_AUTO_START_KEY, true
         ) as Boolean
+        binding.skipHolidaySwitch.isChecked = SaveKeyValues.getValue(
+            Constant.SKIP_HOLIDAY_KEY, false
+        ) as Boolean
+        // 失败重试配置
+        val retryEnabled = SaveKeyValues.getValue(Constant.RETRY_ON_FAIL_KEY, false) as Boolean
+        binding.retryOnFailSwitch.isChecked = retryEnabled
+        if (retryEnabled) {
+            binding.retryCountLayout.visibility = View.VISIBLE
+            val retryCount = SaveKeyValues.getValue(
+                Constant.RETRY_MAX_COUNT_KEY, Constant.DEFAULT_RETRY_COUNT
+            ) as Int
+            binding.retryCountView.text = "${retryCount}次"
+        } else {
+            binding.retryCountLayout.visibility = View.GONE
+        }
+
         val needRandom = SaveKeyValues.getValue(Constant.RANDOM_TIME_KEY, true) as Boolean
         binding.randomTimeSwitch.isChecked = needRandom
         if (needRandom) {
             binding.minuteRangeLayout.visibility = View.VISIBLE
             val value = SaveKeyValues.getValue(Constant.RANDOM_MINUTE_RANGE_KEY, 5) as Int
-            binding.minuteRangeView.text = "${value}分钟"
+            binding.minuteRangeView.text = "±${value}分钟"
         } else {
             binding.minuteRangeLayout.visibility = View.GONE
         }
@@ -113,12 +129,52 @@ class TaskConfigActivity : KotlinBaseActivity<ActivityTaskConfigBinding>() {
                 }).build().show()
         }
 
+        binding.skipHolidaySwitch.setOnCheckedChangeListener { _, isChecked ->
+            SaveKeyValues.putValue(Constant.SKIP_HOLIDAY_KEY, isChecked)
+        }
+
+        binding.retryOnFailSwitch.setOnCheckedChangeListener { _, isChecked ->
+            SaveKeyValues.putValue(Constant.RETRY_ON_FAIL_KEY, isChecked)
+            if (isChecked) {
+                binding.retryCountLayout.visibility = View.VISIBLE
+                val retryCount = SaveKeyValues.getValue(
+                    Constant.RETRY_MAX_COUNT_KEY, Constant.DEFAULT_RETRY_COUNT
+                ) as Int
+                binding.retryCountView.text = "${retryCount}次"
+            } else {
+                binding.retryCountLayout.visibility = View.GONE
+            }
+        }
+
+        binding.retryCountLayout.setOnClickListener {
+            AlertInputDialog.Builder()
+                .setContext(this)
+                .setTitle("设置最大重试次数")
+                .setHintMessage("请输入整数，如：3")
+                .setNegativeButton("取消")
+                .setPositiveButton("确定")
+                .setOnDialogButtonClickListener(object :
+                    AlertInputDialog.OnDialogButtonClickListener {
+                    override fun onConfirmClick(value: String) {
+                        if (value.isNumber()) {
+                            val count = value.toInt().coerceIn(1, 10)
+                            binding.retryCountView.text = "${count}次"
+                            SaveKeyValues.putValue(Constant.RETRY_MAX_COUNT_KEY, count)
+                        } else {
+                            "直接输入整数即可".show(context)
+                        }
+                    }
+
+                    override fun onCancelClick() {}
+                }).build().show()
+        }
+
         binding.randomTimeSwitch.setOnCheckedChangeListener { _, isChecked ->
             SaveKeyValues.putValue(Constant.RANDOM_TIME_KEY, isChecked)
             if (isChecked) {
                 binding.minuteRangeLayout.visibility = View.VISIBLE
                 val value = SaveKeyValues.getValue(Constant.RANDOM_MINUTE_RANGE_KEY, 5) as Int
-                binding.minuteRangeView.text = "${value}分钟"
+                binding.minuteRangeView.text = "±${value}分钟"
             } else {
                 binding.minuteRangeLayout.visibility = View.GONE
             }
@@ -127,15 +183,15 @@ class TaskConfigActivity : KotlinBaseActivity<ActivityTaskConfigBinding>() {
         binding.minuteRangeLayout.setOnClickListener {
             AlertInputDialog.Builder()
                 .setContext(this)
-                .setTitle("设置随机时间范围")
-                .setHintMessage("请输入整数，如：30")
+                .setTitle("设置随机时间范围（±分钟）")
+                .setHintMessage("请输入整数，如：7 表示前后各7分钟")
                 .setNegativeButton("取消")
                 .setPositiveButton("确定")
                 .setOnDialogButtonClickListener(object :
                     AlertInputDialog.OnDialogButtonClickListener {
                     override fun onConfirmClick(value: String) {
                         if (value.isNumber()) {
-                            binding.minuteRangeView.text = "${value}分钟"
+                            binding.minuteRangeView.text = "±${value}分钟"
                             SaveKeyValues.putValue(Constant.RANDOM_MINUTE_RANGE_KEY, value.toInt())
                         } else {
                             "直接输入整数时间即可".show(context)
@@ -193,6 +249,18 @@ class TaskConfigActivity : KotlinBaseActivity<ActivityTaskConfigBinding>() {
 
             val value = SaveKeyValues.getValue(Constant.RANDOM_MINUTE_RANGE_KEY, 5) as Int
             exportData.timeRange = value
+
+            exportData.isSkipHoliday = SaveKeyValues.getValue(
+                Constant.SKIP_HOLIDAY_KEY, false
+            ) as Boolean
+
+            exportData.isRetryOnFail = SaveKeyValues.getValue(
+                Constant.RETRY_ON_FAIL_KEY, false
+            ) as Boolean
+
+            exportData.retryCount = SaveKeyValues.getValue(
+                Constant.RETRY_MAX_COUNT_KEY, Constant.DEFAULT_RETRY_COUNT
+            ) as Int
 
             val json = exportData.toJson()
             Log.d(kTag, json)

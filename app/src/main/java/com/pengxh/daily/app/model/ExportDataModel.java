@@ -19,6 +19,9 @@ public class ExportDataModel {
     private boolean autoStart; // 自动启动
     private boolean randomTime; // 随机时间
     private int timeRange; // 时间范围
+    private boolean skipHoliday; // 节假日不打卡
+    private boolean retryOnFail; // 失败重试
+    private int retryCount; // 重试次数
 
     public List<DailyTaskBean> getTasks() {
         return tasks;
@@ -98,5 +101,29 @@ public class ExportDataModel {
 
     public void setTimeRange(int timeRange) {
         this.timeRange = timeRange;
+    }
+
+    public boolean isSkipHoliday() {
+        return skipHoliday;
+    }
+
+    public void setSkipHoliday(boolean skipHoliday) {
+        this.skipHoliday = skipHoliday;
+    }
+
+    public boolean isRetryOnFail() {
+        return retryOnFail;
+    }
+
+    public void setRetryOnFail(boolean retryOnFail) {
+        this.retryOnFail = retryOnFail;
+    }
+
+    public int getRetryCount() {
+        return retryCount;
+    }
+
+    public void setRetryCount(int retryCount) {
+        this.retryCount = retryCount;
     }
 }
