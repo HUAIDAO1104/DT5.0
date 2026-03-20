@@ -1,0 +1,89 @@
+name: Android Build
+
+on:
+  push:
+    branches: [ master, genspark_ai_developer ]
+  pull_request:
+    branches: [ master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'gradle'
+
+      - name: Fix Gradle wrapper distribution URL
+        run: |
+          sed -i 's|https\\://mirrors.cloud.tencent.com/gradle/|https\\://services.gradle.org/distributions/|g' gradle/wrapper/gradle-wrapper.properties
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Cache NDK and CMake
+        id: cache-ndk
+        uses: actions/cache@v4
+        with:
+          path: |
+            /usr/local/lib/android/sdk/ndk/21.4.7075529
+            /usr/local/lib/android/sdk/cmake/3.22.1
+          key: ${{ runner.os }}-ndk-21.4.7075529-cmake-3.22.1
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Accept SDK Licenses
+        run: yes | sdkmanager --licenses || true
+
+      - name: Install NDK 21.4.7075529
+        if: steps.cache-ndk.outputs.cache-hit != 'true'
+        run: sdkmanager "ndk;21.4.7075529"
+
+      - name: Install CMake 3.22.1
+        if: steps.cache-ndk.outputs.cache-hit != 'true'
+        run: sdkmanager "cmake;3.22.1"
+
+      - name: Cache Gradle build
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+            app/build
+            build
+            .gradle
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Build Debug APK
+        run: ./gradlew assembleDailyDebug --stacktrace --build-cache --parallel
+
+      - name: Upload Debug APK
+        uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: debug-apk
+          path: app/build/outputs/apk/daily/debug/*.apk
+          retention-days: 7
+
+      - name: Build Release APK
+        run: ./gradlew assembleDailyRelease --stacktrace --build-cache --parallel
+
+      - name: Upload Release APK
+        uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: release-apk
+          path: app/build/outputs/apk/daily/release/*.apk
+          retention-days: 7
